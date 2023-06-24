@@ -37,19 +37,18 @@ module.exports = function (passport) {
     )
   )
 
-  passport.serializeUser(function(user, cb) {
-    process.nextTick(function() {
-      return cb(null, {
-        id: user.id,
-        username: user.username,
-        picture: user.picture
-      });
-    });
+  passport.serializeUser(function(user, done) {
+    done(null, user.id);
   });
   
-  passport.deserializeUser(function(user, cb) {
-    process.nextTick(function() {
-      return cb(null, user);
-    });
+  passport.deserializeUser(function(id, done) {
+    const userId = new mongoose.Types.ObjectId(id);
+    User.findById(userId)
+      .then(user => {
+        done(null, user);
+      })
+      .catch(err => {
+        done(err, null);
+      });
   });
 }
